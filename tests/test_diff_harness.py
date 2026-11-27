@@ -50,7 +50,7 @@ def test_missing_command_is_harness_error(tmp_path):
     assert r.returncode == 2
 
 
-# ---- regression tests from the independent pre-release audit ----
+# ---- safety and error-path regressions ----
 
 def test_empty_corpus_is_an_error(tmp_path):
     inp = tmp_path / "in.txt"
@@ -86,3 +86,45 @@ def test_non_executable_command_is_harness_error(tmp_path):
     inp.write_text("x\n")
     r = run_script("diff_harness.py", "--old", str(f), "--new", str(f), "--inputs", str(inp))
     assert r.returncode == 2 and "Traceback" not in r.stderr
+
+
+def test_one_root_cause_forms_one_group(tmp_path):
+    old = prog(tmp_path, "o.py", "    print(int(line) * 2)\n")
+    new = prog(tmp_path, "n.py", "    print(int(line) * 2 + 1)\n")
+    inp = tmp_path / "in.txt"
+    inp.write_text("1\n2\n3\n4\n5\n")
+    rep = tmp_path / "r.json"
+    r = run_script("diff_harness.py", "--old", old, "--new", new, "--inputs", str(inp), "--report", str(rep))
+    data = json.loads(rep.read_text())
+    assert r.returncode == 1 and data["mismatches"] == 5 and list(data["groups"]) == ["values differ: #0: <num> → <num>"]
+
+
+def test_error_codes_stay_distinct_groups(tmp_path):
+    old = prog(tmp_path, "o.py", "    print('ERR bad_input' if line == 'x' else 'ERR too_long')\n")
+    new = prog(tmp_path, "n.py", "    print('ERR other')\n")
+    inp = tmp_path / "in.txt"
+    inp.write_text("x\ny\n")
+    rep = tmp_path / "r.json"
+    run_script("diff_harness.py", "--old", old, "--new", new, "--inputs", str(inp), "--report", str(rep))
+    assert sorted(json.loads(rep.read_text())["groups"]) == ["values differ: #1: bad_input → other",
+                                                            "values differ: #1: too_long → other"]
+
+
+def test_missing_inputs_file_is_a_clean_error(tmp_path):
+    r = run_script("diff_harness.py", "--old", "cat", "--new", "cat", "--inputs", str(tmp_path / "missing.txt"))
+    assert r.returncode == 2 and "cannot read --inputs" in r.stderr and "Traceback" not in r.stderr
+
+
+def test_shell_operators_are_refused(tmp_path):
+    inp = tmp_path / "in.txt"
+    inp.write_text("a\n")
+    r = run_script("diff_harness.py", "--old", "cat", "--new", "cat | tr a b", "--inputs", str(inp))
+    assert r.returncode == 2 and "without a shell" in r.stderr
+
+
+def test_bad_numeric_arguments_are_rejected(tmp_path):
+    inp = tmp_path / "in.txt"
+    inp.write_text("a\n")
+    for flag, val in (("--max-examples", "-1"), ("--timeout", "0")):
+        r = run_script("diff_harness.py", "--old", "cat", "--new", "cat", "--inputs", str(inp), flag, val)
+        assert r.returncode == 2 and "Traceback" not in r.stderr

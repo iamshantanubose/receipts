@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 """Differential (shadow) test harness: run OLD and NEW on identical inputs, compare, group mismatches.
 
-Standard library only. Safe by default: it only runs the two commands you give it, locally,
-with stdin input. It never contacts external systems.
+Standard library only. It runs exactly the two commands you give it, locally, without a shell,
+feeding the inputs on stdin. It adds no network access of its own, but those commands can do anything
+your user account can, so only compare programs you are willing to run.
+
+Mismatches are grouped by the *shape* of the difference, not by literal values: which `key=value`
+fields differ, or which positions differ and how (a category word such as an error code is kept,
+numbers become <num>, other text becomes <text>). One root cause therefore tends to form one group.
+This works best when outputs are `key=value` tokens, tab/space-separated fields, or JSON.
+
+Pipes, `&&`, `;` and redirects are refused: wrap a pipeline in a script and pass the script.
 
 Modes:
   lines  : feed the whole input file to each command once; compare output line N to line N.
@@ -14,30 +22,46 @@ Examples:
   diff_harness.py --old "node old.js" --new "node new.js" --inputs reqs.jsonl --mode json
 Exit code: 0 = no mismatches, 1 = mismatches found, 2 = harness error.
 """
+from __future__ import annotations
+
 import argparse
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
 from collections import OrderedDict
 
 
-def split_cmd(cmd):
-    return shlex.split(cmd, posix=(os.name != "nt"))
+SHELL_OPS = {"|", "||", "&", "&&", ";", ">", ">>", "<", "2>", "2>&1", "&>"}
+CATEGORY = re.compile(r"[A-Za-z_][A-Za-z0-9_.-]{0,39}")
 
 
-def run(cmd, data, timeout):
+def split_cmd(cmd: str) -> list[str]:
+    """Split a command line into argv. Raises ValueError for shell syntax, which is not supported."""
+    argv = shlex.split(cmd, posix=(os.name != "nt"))
+    ops = [t for t in argv if t in SHELL_OPS]
+    if ops:
+        raise ValueError(f"shell operator {ops[0]!r} in {cmd!r}: commands run without a shell. "
+                         "Put the pipeline in a script and pass the script instead.")
+    if not argv:
+        raise ValueError("empty command")
+    return argv
+
+
+def run(cmd: str, data: bytes, timeout: float) -> tuple[int, bytes, str]:
     """Returns (exit code, stdout bytes, stderr text). Outputs are compared as BYTES; text is only for display."""
     p = subprocess.run(split_cmd(cmd), input=data, capture_output=True, timeout=timeout)
     return p.returncode, p.stdout, p.stderr.decode("utf-8", "replace")
 
 
-def show(b):
+def show(b: bytes) -> str:
+    """Bytes for display: invalid UTF-8 is shown as backslash escapes."""
     return b.decode("utf-8", "backslashreplace")
 
 
-def tokens(s):
+def tokens(s: str) -> OrderedDict:
     """Split an output line into a key->value view. key=value pairs keep their key; others use position."""
     out = OrderedDict()
     for i, tok in enumerate(s.replace("\t", " ").split()):
@@ -49,20 +73,34 @@ def tokens(s):
     return out
 
 
-def line_fingerprint(old, new):
+def shape(v: str | None) -> str:
+    """Collapse a value to its kind: ∅ (missing), <num>, a short category word (kept), or <text>."""
+    if v is None or v == "":
+        return "∅"
+    try:
+        float(v)
+        return "<num>"
+    except ValueError:
+        pass
+    return v if CATEGORY.fullmatch(v) else "<text>"
+
+
+def line_fingerprint(old: str, new: str) -> str:
+    """Group key for one mismatching output line. Literal numbers and free text never split groups."""
     a, b = tokens(old), tokens(new)
     keys = [k for k in OrderedDict.fromkeys(list(a) + list(b)) if a.get(k) != b.get(k)]
-    head_a, head_b = a.get("#0", ""), b.get("#0", "")
-    if head_a != head_b:  # different outcome class (e.g. OK vs ERR)
-        detail = f" ({a.get('#1', '-')} → {b.get('#1', '-')})" if ("#1" in a or "#1" in b) else ""
-        return f"outcome {head_a or '∅'} → {head_b or '∅'}{detail}"
+    head_a, head_b = shape(a.get("#0")), shape(b.get("#0"))
+    if a.get("#0") != b.get("#0") and head_a != head_b:  # different outcome class (e.g. OK vs ERR)
+        detail = f" ({shape(a.get('#1'))} → {shape(b.get('#1'))})" if ("#1" in a or "#1" in b) else ""
+        return f"outcome {head_a} → {head_b}{detail}"
     named = [k for k in keys if not k.startswith("#")]
     if named:
         return "fields differ: " + ", ".join(named)
-    return "values differ: " + ", ".join(f"{a.get(k, '∅')} → {b.get(k, '∅')}" for k in keys)
+    return "values differ: " + ", ".join(f"{k}: {shape(a.get(k))} → {shape(b.get(k))}" for k in keys)
 
 
-def json_paths(a, b, prefix=""):
+def json_paths(a, b, prefix: str = "") -> list[str]:
+    """Structural differences between two JSON values as key paths (list indexes collapse to [])."""
     if type(a) is not type(b):
         return [f"{prefix or '$'}: type {type(a).__name__} → {type(b).__name__}"]
     if isinstance(a, dict):
@@ -86,19 +124,43 @@ def json_paths(a, b, prefix=""):
     return [] if a == b else [f"{prefix or '$'}: value"]
 
 
-def main():
+def non_negative_int(v: str) -> int:
+    n = int(v)
+    if n < 0:
+        raise argparse.ArgumentTypeError(f"must be 0 or more, got {v}")
+    return n
+
+
+def positive_float(v: str) -> float:
+    x = float(v)
+    if x <= 0:
+        raise argparse.ArgumentTypeError(f"must be a positive number, got {v}")
+    return x
+
+
+def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--old", required=True, help="command for the reference (trusted) implementation")
     ap.add_argument("--new", required=True, help="command for the implementation under test")
     ap.add_argument("--inputs", required=True, help="input file, one record per line")
     ap.add_argument("--mode", choices=["lines", "each", "json"], default="lines")
-    ap.add_argument("--timeout", type=float, default=30.0, help="seconds per command run")
-    ap.add_argument("--max-examples", type=int, default=3, help="examples kept per mismatch group")
+    ap.add_argument("--timeout", type=positive_float, default=30.0, help="seconds per command run")
+    ap.add_argument("--max-examples", type=non_negative_int, default=3, help="examples kept per mismatch group")
     ap.add_argument("--report", help="write a JSON report here")
     args = ap.parse_args()
 
-    with open(args.inputs, "rb") as f:
-        raw = f.read()
+    for name in ("old", "new"):
+        try:
+            split_cmd(getattr(args, name))
+        except ValueError as e:
+            print(f"HARNESS ERROR: --{name}: {e}", file=sys.stderr)
+            return 2
+    try:
+        with open(args.inputs, "rb") as f:
+            raw = f.read()
+    except OSError as e:
+        print(f"HARNESS ERROR: cannot read --inputs {args.inputs!r}: {e.strerror}", file=sys.stderr)
+        return 2
     records = raw.split(b"\n")
     if records and records[-1] == b"":
         records.pop()
@@ -163,7 +225,8 @@ def main():
         return 2
 
     mismatched = sum(g["count"] for g in groups.values())
-    print(f"Differential test: {compared} records compared, {mismatched} mismatched records, {len(groups)} distinct groups")
+    print(f"Differential test: {compared} records compared, {mismatched} mismatched records, "
+          f"{len(groups)} distinct group{'' if len(groups) == 1 else 's'}")
     print(f"Match rate: {100 * (compared - mismatched) / compared:.1f}%")
     for fp, g in structural.items():
         print(f"\n[RUN-LEVEL] {fp}")
