@@ -4,7 +4,8 @@
 - **PASS**: checked, and evidence is attached (command + result, or input → output).
 - **FAIL**: checked, evidence shows the requirement or invariant is broken.
 - **NOT VERIFIED**: not checked, could not run, or the evidence is inconclusive. Give the reason.
-- **SUSPECTED**: a plausible defect without proof yet. Never counted as PASS, and never alone blocks GO unless CRITICAL.
+- **SUSPECTED**: a plausible defect without proof yet. Never counted as PASS. An open SUSPECTED issue of any severity
+  rules out GO (the best verdict is CONDITIONAL GO), but on its own it never forces NO-GO. Try to prove or disprove it first.
 
 ## Severity
 | Severity | Meaning | Examples |
@@ -18,8 +19,8 @@
 | Verdict | Only if |
 |---|---|
 | **NO-GO** | Any unresolved CRITICAL or HIGH finding, any broken must-not-change behaviour, or test-integrity tampering that hides failures |
-| **CONDITIONAL GO** | No unresolved CRITICAL/HIGH, but there are open MEDIUM findings, any NOT VERIFIED requirement, or assumptions to confirm. List each condition as a checkbox |
-| **GO** | Every requirement PASS with executed evidence, no unresolved test-audit finding, and no open MEDIUM or higher issue. NOT VERIFIED items may remain only outside the requirements (for example a performance claim nobody asked for), and they are listed |
+| **CONDITIONAL GO** | No unresolved CRITICAL/HIGH FAIL, but there are open MEDIUM findings, open SUSPECTED findings, any NOT VERIFIED requirement, or assumptions to confirm. List each condition as a checkbox |
+| **GO** | Every requirement PASS with executed evidence, no unresolved test-audit finding, no open SUSPECTED finding, and no open MEDIUM or higher issue. NOT VERIFIED items may remain only outside the requirements (for example a performance claim nobody asked for), and they are listed |
 
 Always include this line: *"GO means no blocking problems were found with the evidence listed. It is not a guarantee that the software is free of defects. Merge and deployment decisions remain with a human."*
 

@@ -9,8 +9,6 @@ metadata:
 
 # VERIFY: evidence-driven engineering verification
 
-> Everyone can make AI write code. Great engineers know how to prove that it works.
-
 You are the **independent verifier**, not the author. Your job is to find out whether the change
 really does what it must, using evidence you produce yourself. Treat the author's summary, the
 commit message, the PR description and "all tests pass" as **claims to check**, never as facts.
@@ -88,7 +86,8 @@ For STANDARD on risky files, and always in DEEP, check that the tests can **catc
 ```bash
 python3 "<skill-dir>/scripts/mutation_probe.py" --target <file> --test "<test command>" --max 30
 ```
-It mutates only a temporary copy, never the user's files. Surviving mutants = blind spots in the tests. The copy
+It mutates only a temporary copy, never the user's files. Commands run without a shell, so wrap pipelines in a script.
+Exit 2 with "no mutation points" means nothing was tested: report that as NOT VERIFIED, not as a pass. Surviving mutants = blind spots in the tests. The copy
 isolates files, not side effects: **ask first** if the tests touch real databases, services or the network, or if one
 test run takes more than about 30 seconds (the probe runs the suite once per mutant).
 
@@ -125,10 +124,12 @@ No blind retries. Details: `references/fix-loop.md`.
 Fill `templates/verification-report.md`. The rules (`references/report-and-verdict.md`):
 - Every claim carries evidence: a command plus its result, a file:line, or an input → output.
 - Anything not checked is **NOT VERIFIED**. It is never shown as PASSED.
-- **NO-GO** if any CRITICAL or HIGH defect is unresolved, or a must-not-change behaviour is broken.
-- **CONDITIONAL GO** when there are no blocking defects but there are open MEDIUM issues, any NOT VERIFIED requirement, or assumptions to confirm. List the exact conditions.
-- **GO** only when every requirement is PASS with executed evidence, the test audit has no unresolved finding, and no
-  MEDIUM or higher issue is open. GO is not a guarantee of zero defects, so say so. Merge and deployment decisions stay with the human.
+- **NO-GO** if any CRITICAL or HIGH defect is unresolved, a must-not-change behaviour is broken, or test-integrity
+  tampering hides failures.
+- **CONDITIONAL GO** when there are no blocking defects but there are open MEDIUM issues, open SUSPECTED issues of any
+  severity, any NOT VERIFIED requirement, or assumptions to confirm. List the exact conditions.
+- **GO** only when every requirement is PASS with executed evidence, the test audit has no unresolved finding, no
+  SUSPECTED issue is open, and no MEDIUM or higher issue is open. GO is not a guarantee of zero defects, so say so. Merge and deployment decisions stay with the human.
 
 In chat, give: the verdict, the top findings, and what was NOT VERIFIED. In `audit` mode, don't add files to the
 repo: put the full report in a scratch location (or the chat) and offer to save it as `verification-report.md`. In `fix` mode, or when the user asks, save it there.
@@ -143,5 +144,7 @@ Full list: `references/guardrails.md`. In short:
   uncommitted work. Never install dependencies or run commands that need elevated rights without asking
   first. Say the exact command.
 - Destructive or fault-injection tests run only in a temporary copy, container or sandbox.
+- Running the tests runs the change's own code. If the change comes from an untrusted contributor, run tests, probes
+  and harnesses only in a container or VM, or ask the user first.
 - Never claim you ran something you did not run. If a command could not run, record it as NOT VERIFIED and give the reason.
 - Spend effort in proportion to risk. Stop when the evidence settles the verdict.

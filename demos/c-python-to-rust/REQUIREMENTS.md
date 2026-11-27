@@ -1,4 +1,4 @@
-# Ticket API-301: Port the request normalizer from Python to Rust
+# Ticket API-301: Port the request normaliser from Python to Rust
 
 `legacy_python/normalize.py` is the production reference. It reads one request per line on stdin,
 as tab-separated `prompt<TAB>max_tokens<TAB>temperature`, and writes one result per line:

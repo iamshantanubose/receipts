@@ -13,9 +13,9 @@ when the tests are honest and relevant.
 | skipped-test | unconditional skip / xfail / ignore / disabled / `.only` focus added | HIGH without a linked issue, otherwise MEDIUM |
 | conditional-skip | `skipif` / `skipUnless` / `@EnabledOn…` added | LOW: check the condition is legitimate |
 | assertions-dropped | fewer assertions than before in a test file | MEDIUM, HIGH if 2 or more |
-| weakened-assertion | exact check → approx / truthy / membership / `abs(...) < tol` | HIGH |
+| weakened-assertion | exact check → approx / bare truthy (`assert x`) / `is not None` / ordering (`> 0`) / membership / `abs(...) < tol` | HIGH |
 | expected-value-changed | same assertion, different expected literal | MEDIUM: confirm that a requirement changed |
-| swallowed-error | `except: pass`, empty `catch {}`, `|| true`, `let _ =` | HIGH in tests, MEDIUM in source |
+| swallowed-error | `except: pass` (also `pass` added under an unchanged `except` line), empty `catch {}`, `|| true`, Go `_ = err`, Rust `let _ =` | HIGH in tests, MEDIUM in source |
 | coverage-gate-lowered / -removed | `fail_under`, `coverageThreshold`, … decreased or deleted (config files only) | HIGH |
 | failures-ignored | `continue-on-error`, `--deselect`, `-k "not …"`, `--passWithNoTests`, … | HIGH |
 | mock-heavy | 3 or more new mocks/patches in one test file | MEDIUM |
