@@ -1,6 +1,6 @@
 # Engineering Verification Report (example)
 
-> A worked example on `demos/b-weakened-tests`. Every command and output below was actually run; outputs are trimmed.
+> A worked example on `demos/b-weakened-tests`. Every command below runs as written from the repository root; outputs are trimmed.
 
 | | |
 |---|---|
@@ -8,7 +8,7 @@
 | **Change** | `demos/b-weakened-tests`: `before/` → `after/` · 3 files (`invoice.py`, `test_invoice.py`, `pyproject.toml`) |
 | **Mode / permission** | STANDARD, escalated to DEEP for the money logic · AUDIT ONLY |
 | **Risk** | CRITICAL: money arithmetic plus test and CI-gate changes in the same diff |
-| **Date / verifier** | 2026-11-27 · independent verification pass |
+| **Date / verifier** | 2026-11-27 · coding agent following `verify-engineering`, cold read (no subagent) |
 
 ## 1. Executive summary
 The change makes invoice totals "faster" by replacing `Decimal` with `float`. CI is green only because the tests were
@@ -42,12 +42,12 @@ quantities accepted. Do not merge.
 ## 5. Test execution
 | Command | Result |
 |---|---|
-| `python3 -m pytest .` (in `after/`) | 3 passed, 1 skipped: green, but see §6 |
-| `python3 -m pytest ../hidden_tests` (requirement probes) | **5 failed** |
+| `python3 -m pytest -q -p no:cacheprovider demos/b-weakened-tests/after` | 3 passed, 1 skipped: green, but see §6 |
+| `(cd demos/b-weakened-tests/after && python3 -m pytest -q -p no:cacheprovider ../hidden_tests)` | **5 failed** |
 
 ## 6. Test-integrity audit
 ```
-$ python3 skills/verify-engineering/scripts/test_integrity_scan.py --before before --after after
+$ python3 skills/verify-engineering/scripts/test_integrity_scan.py --before demos/b-weakened-tests/before --after demos/b-weakened-tests/after
 Test-integrity scan: 3 files changed, 6 findings (HIGH 5, MEDIUM 1)
 - [HIGH] coverage-gate-lowered @ pyproject.toml:5: Coverage gate `fail_under` lowered 90 → 60.
 - [HIGH] weakened-assertion @ test_invoice.py:7: ... == pytest.approx(236.00)
@@ -74,10 +74,11 @@ Not a migration, so no differential corpus was used. The old and new versions we
 - The performance claim: it would need a benchmark with the same inputs, before and after.
 
 ## 10. Commands executed
+All from the repository root.
 ```
 python3 skills/verify-engineering/scripts/test_integrity_scan.py --before demos/b-weakened-tests/before --after demos/b-weakened-tests/after   # exit 1
-cd demos/b-weakened-tests/after && python3 -m pytest -p no:cacheprovider .                                                                  # exit 0
-python3 -m pytest -q -p no:cacheprovider ../hidden_tests                                                                                    # exit 1, 5 failed
+python3 -m pytest -q -p no:cacheprovider demos/b-weakened-tests/after                                                                          # exit 0
+(cd demos/b-weakened-tests/after && python3 -m pytest -q -p no:cacheprovider ../hidden_tests)                         # exit 1, 5 failed
 python3 skills/verify-engineering/scripts/mutation_probe.py --root demos/b-weakened-tests/after --target invoice.py --test "python3 -m pytest -q -x -p no:cacheprovider"   # exit 0
 ```
 

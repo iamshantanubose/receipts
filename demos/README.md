@@ -1,6 +1,6 @@
 # Demo scenarios
 
-Five deliberately flawed changes, plus correct versions to measure false alarms. In every flawed scenario
+Five deliberately flawed changes, each with a correct version to measure false alarms. In every flawed scenario
 **the project's own tests pass**. That is the trap.
 
 | Folder | Scenario | The change under review | Correct version (negative control) |
@@ -16,19 +16,20 @@ findings: **don't show this to the verifier**) and `hidden_tests/` (ground truth
 in `../benchmark/results/`, and a full example report is in `../examples/reports/`.
 
 ## Try it yourself (about 2 minutes)
+From the repository root, with pytest installed:
 ```bash
 cd demos/a-business-rule/after
 python3 -m pytest -q                   # 4 passed: looks done
 python3 -m pytest -q ../hidden_tests   # 4 failed: it isn't
 ```
-Then, in your agent: `/verify-engineering` on that folder. Or, for the migration demo:
+Then, in your agent: `/verify-engineering` on that folder. Or, for the migration demo (needs cargo), again from the repository root:
 ```bash
 cd demos/c-python-to-rust
 (cd rust_port && cargo build --release -q)
 python3 ../../skills/verify-engineering/scripts/diff_harness.py \
   --old "python3 legacy_python/normalize.py" --new rust_port/target/release/normalize \
   --inputs inputs/synthetic_traffic.tsv
-# 600 records compared, 272 mismatches, grouped by root cause
+# 600 records compared, 272 mismatched, in 13 groups (by the shape of the difference)
 ```
 
 ## Before / after

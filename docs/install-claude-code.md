@@ -12,9 +12,10 @@ npx skills add iamshantanubose/receipts -a claude-code -g
 Inside Claude Code:
 ```
 /plugin marketplace add iamshantanubose/receipts
-/plugin install verify-engineering@verify-engineering
+/plugin install verify-engineering@receipts
 ```
-Plugin skills are namespaced, so you invoke it as `/verify-engineering:verify-engineering`. Plain language also works.
+`receipts` is the marketplace and `verify-engineering` is the plugin. Plugin skills are namespaced, so you invoke it as
+`/verify-engineering:verify-engineering`. Plain language also works.
 
 ## Option 3: manual copy
 ```bash
@@ -22,6 +23,8 @@ git clone https://github.com/iamshantanubose/receipts.git
 mkdir -p ~/.claude/skills
 cp -R receipts/skills/verify-engineering ~/.claude/skills/
 ```
+Or unzip `receipts-verify-engineering-<version>.zip` from the [releases page](https://github.com/iamshantanubose/receipts/releases)
+into `~/.claude/skills/`. The zip contains a single `verify-engineering/` folder.
 
 ## Use it
 ```
