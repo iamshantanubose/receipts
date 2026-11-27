@@ -1,13 +1,13 @@
 {
-  "name": "verify-engineering",
-  "owner": { "name": "Shantanu Bose" },
+  "name": "receipts",
+  "owner": { "name": "Shantanu Bose", "url": "https://github.com/iamshantanubose" },
   "metadata": { "description": "Evidence-driven verification for AI-written code." },
   "plugins": [
     {
       "name": "verify-engineering",
       "source": "./",
       "description": "Independently verify code changes: requirements, test-integrity audit, differential and mutation checks, GO / CONDITIONAL GO / NO-GO report.",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }

@@ -49,3 +49,16 @@ def test_every_referenced_file_exists():
         body = open(os.path.join(SKILL, "references", ref), encoding="utf-8").read()
         for rel in re.findall(r"`((?:scripts|templates)/[\w.-]+\.\w+)", body):
             assert os.path.exists(os.path.join(SKILL, rel)), f"{ref} -> {rel}"
+
+
+def test_versions_agree():
+    import json
+    root = os.path.dirname(os.path.dirname(SKILL))
+    plugin = json.load(open(os.path.join(root, ".claude-plugin", "plugin.json"), encoding="utf-8"))["version"]
+    market = json.load(open(os.path.join(root, ".claude-plugin", "marketplace.json"), encoding="utf-8"))
+    _, text = frontmatter()
+    skill = re.search(r'^\s+version:\s*"([^"]+)"', text, re.M).group(1)
+    changelog = open(os.path.join(root, "CHANGELOG.md"), encoding="utf-8").read()
+    latest = re.search(r"^## (\S+)", changelog, re.M).group(1)
+    assert plugin == skill == latest == market["plugins"][0]["version"], (plugin, skill, latest)
+    assert market["name"] == "receipts"

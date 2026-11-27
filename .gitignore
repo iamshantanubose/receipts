@@ -4,3 +4,7 @@ target/
 dist/
 *.pyc
 .DS_Store
+.venv/
+*.egg-info/
+.idea/
+.vscode/

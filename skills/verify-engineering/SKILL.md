@@ -4,7 +4,7 @@ description: Evidence-driven verification of code changes, especially AI-written
 license: MIT
 metadata:
   author: Shantanu Bose
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # VERIFY: evidence-driven engineering verification
