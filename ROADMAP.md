@@ -3,7 +3,8 @@
 Open work, in priority order. Contributions and reports are welcome (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## Verification of hosts
-- [ ] Confirm `/verify-engineering` in a live Claude Code session, and the plugin route (`/verify-engineering:verify-engineering`).
+- [x] Confirm `/verify-engineering` in a live Claude Code session.
+- [ ] Confirm the plugin route (`/verify-engineering:verify-engineering`).
 - [ ] Confirm Cursor loads the skill from `.cursor/skills/` and `~/.claude/skills/`.
 - [ ] Confirm Codex loads it from `.agents/skills/`.
 - [ ] Confirm `npx skills add iamshantanubose/receipts` for each host.

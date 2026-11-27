@@ -2,7 +2,7 @@
 
 | Host | Install path | Invocation | Independent challenge | Status |
 |---|---|---|---|---|
-| Claude Code (CLI, desktop, IDE) | `~/.claude/skills/` or `.claude/skills/`, or as a plugin | `/verify-engineering` (plugin: `/verify-engineering:verify-engineering`) | Fresh subagent (Task/Agent tool) | Manifests validated; workflow followed end to end in benchmark runs. Slash invocation not yet verified live (see [validation.md](validation.md)) |
+| Claude Code (CLI, desktop, IDE) | `~/.claude/skills/` or `.claude/skills/`, or as a plugin | `/verify-engineering` (plugin: `/verify-engineering:verify-engineering`) | Fresh subagent (Task/Agent tool) | Verified live: `/verify-engineering` from `.claude/skills/` (see [validation.md](validation.md)). Plugin route not yet verified |
 | Cursor | `~/.cursor/skills/`, `.cursor/skills/`, `.agents/skills/` (also reads `~/.claude/skills/`) | `/` menu, or ask in plain language | Cold-read fallback | Documented, **not yet verified live** |
 | OpenAI Codex | `~/.agents/skills/`, `.agents/skills/` | `$verify-engineering` or `/skills` | Cold-read fallback | Documented, **not tested** |
 | Other Agent Skills hosts | any folder the host scans for `SKILL.md` | host-specific | Depends | Uses only the standard frontmatter fields (`name`, `description`, `license`, `metadata`) |
