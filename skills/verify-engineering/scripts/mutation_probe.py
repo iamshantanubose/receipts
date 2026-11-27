@@ -13,11 +13,17 @@ Safety: targets must be relative paths inside --root and must not be (or sit und
 mutation can only ever touch the throwaway copy. The copy isolates *files*, not side effects: if your
 tests talk to real databases, services or the network, they will do so for every mutant. Ask first.
 
+The test command runs without a shell: pipes, `&&`, `;` and redirects are refused. Wrap anything
+more complex in a script and pass that script as the command.
+
 Usage:
-  mutation_probe.py --target src/pricing.py --test "python3 -m pytest -q -x" [--root .] [--max 40]
+  mutation_probe.py --target src/pricing.py --test "python3 -m pytest -q -x" [--root .] [--max 30]
   [--exclude node_modules --exclude target]   # skip big folders the tests don't need (default: .git, caches)
-Exit code: 0 = no survivors, 1 = survivors found, 2 = error (for example, tests fail before mutation).
+Exit code: 0 = no survivors, 1 = survivors found,
+           2 = error (tests fail before mutation, nothing to mutate, bad arguments).
 """
+from __future__ import annotations
+
 import argparse
 import os
 import random
@@ -40,10 +46,16 @@ MUTATORS = [
     ("true → false", r"\btrue\b", "false"), ("0 → 1", r"(?<![\w.])0(?![\w.])", "1"),
     ("1 → 0", r"(?<![\w.])1(?![\w.])", "0"),
 ]
+HASH_COMMENT_EXT = {".py", ".pyw", ".rb", ".sh", ".bash", ".pl", ".r", ".jl", ".ex", ".exs", ".nim", ".cr"}
+SHELL_OPS = {"|", "||", "&", "&&", ";", ">", ">>", "<", "2>", "2>&1", "&>"}
 SKIP_LINE = re.compile(r"^\s*(#|//|/\*|\*|import |from \S+ import|use |package |@|\"\"\"|''')")
 
 
-def candidates(lines):
+def candidates(lines: list[str], hash_comments: bool = False) -> list[tuple[int, int, int, str, str]]:
+    """Mutation points as (line index, start, end, replacement, mutator name).
+
+    hash_comments: the language uses `#` for comments (Python, Ruby, shell). Then `//` is an operator
+    (Python floor division), not a comment. Otherwise `//` starts a comment."""
     out = []
     in_block = None  # inside a triple-quoted string or /* */ comment
     for i, line in enumerate(lines):
@@ -63,18 +75,41 @@ def candidates(lines):
         if re.search(r"\b\w+!\s*\(", line) or stripped.startswith(("assert", "debug_assert")):
             continue  # macros / assertions: mutating them tests nothing useful
         code = re.sub(r"(['\"]).*?\1", lambda m: " " * len(m.group(0)), line)  # don't mutate inside strings
-        code = re.split(r"\s#\s|//", code)[0]
+        code = code.split("#" if hash_comments else "//", 1)[0]
         for name, pat, rep in MUTATORS:
             for m in re.finditer(pat, code):
                 out.append((i, m.start(), m.end(), rep, name))
     return out
 
 
-def split_cmd(cmd):
-    return shlex.split(cmd, posix=(os.name != "nt"))
+def split_cmd(cmd: str) -> list[str]:
+    """Split a command line into argv. Raises ValueError for shell syntax, which is not supported."""
+    argv = shlex.split(cmd, posix=(os.name != "nt"))
+    ops = [t for t in argv if t in SHELL_OPS]
+    if ops:
+        raise ValueError(f"shell operator {ops[0]!r} in {cmd!r}: commands run without a shell. "
+                         "Put the pipeline in a script and pass the script instead.")
+    if not argv:
+        raise ValueError("empty command")
+    return argv
 
 
-def run(cmd, cwd, timeout):
+def positive_int(v: str) -> int:
+    n = int(v)
+    if n <= 0:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {v}")
+    return n
+
+
+def positive_float(v: str) -> float:
+    x = float(v)
+    if x <= 0:
+        raise argparse.ArgumentTypeError(f"must be a positive number, got {v}")
+    return x
+
+
+def run(cmd: str, cwd: str, timeout: float) -> tuple[int | str, float]:
+    """Run the test command once. Returns (exit code or "timeout", seconds)."""
     t = time.time()
     try:
         p = subprocess.run(split_cmd(cmd), cwd=cwd, capture_output=True, timeout=timeout)
@@ -83,13 +118,13 @@ def run(cmd, cwd, timeout):
         return "timeout", time.time() - t
 
 
-def main():
+def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--target", required=True, action="append", help="file to mutate (repeatable), relative to --root")
     ap.add_argument("--test", required=True, help="test command run from the project root")
     ap.add_argument("--root", default=".")
-    ap.add_argument("--max", type=int, default=40, help="max mutants to try (budget)")
-    ap.add_argument("--timeout", type=float, default=120.0, help="seconds per test run")
+    ap.add_argument("--max", type=positive_int, default=30, help="max mutants to try (budget, default 30)")
+    ap.add_argument("--timeout", type=positive_float, default=120.0, help="seconds per test run")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--exclude", action="append", default=[], help="folder/file name to leave out of the copy (repeatable)")
     a = ap.parse_args()
@@ -109,6 +144,17 @@ def main():
         if os.path.realpath(real) != os.path.normpath(real):
             print(f"ERROR: target is a symlink or under a symlinked folder: {t}", file=sys.stderr)
             return 2
+        try:
+            with open(real, encoding="utf-8") as f:
+                f.read()
+        except UnicodeDecodeError:
+            print(f"ERROR: target is not UTF-8 text: {t}", file=sys.stderr)
+            return 2
+    try:
+        split_cmd(a.test)
+    except ValueError as e:
+        print(f"ERROR: --test: {e}", file=sys.stderr)
+        return 2
     work = tempfile.mkdtemp(prefix="mutation-probe-")
     proj = os.path.join(work, "p")
     ignore = shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache", *a.exclude)
@@ -136,7 +182,12 @@ def main():
             path = os.path.join(proj, t)
             with open(path, encoding="utf-8") as f:
                 lines = f.read().split("\n")
-            pool += [(t, c) for c in candidates(lines)]
+            hash_comments = os.path.splitext(t)[1].lower() in HASH_COMMENT_EXT
+            pool += [(t, c) for c in candidates(lines, hash_comments)]
+        if not pool:
+            print("ERROR: no mutation points found in the target(s), so nothing was tested. "
+                  "This is not a pass. Check the --target file.", file=sys.stderr)
+            return 2
         random.Random(a.seed).shuffle(pool)
         pool = pool[: a.max]
         killed, survived, timeouts = 0, [], 0
@@ -159,11 +210,10 @@ def main():
                 killed += 1
             else:
                 survived.append((t, i + 1, name, mutated_line.strip()))
-        total = len(pool)
+        total = len(pool)  # never 0 here
         print(f"Mutation probe: {total} mutants, {killed} killed, {len(survived)} survived"
               + (f", {timeouts} timed out (counted as killed)" if timeouts else ""))
-        if total:
-            print(f"Mutation score: {100 * killed / total:.0f}%")
+        print(f"Mutation score: {100 * killed / total:.0f}%")
         for t, ln, name, code in survived:
             print(f"- SURVIVED {t}:{ln} [{name}]  {code}")
         if survived:
