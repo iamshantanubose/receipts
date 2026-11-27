@@ -1,0 +1,10 @@
+hello	100	0.7
+  spaced prompt  	10	
+	10	0.5
+hi	abc	0.5
+hi	0	0.5
+hi	5000	0.5
+hi	10	1.5
+hi	10	xyz
+only-two-fields	10
+this prompt is far too long	10	0.5

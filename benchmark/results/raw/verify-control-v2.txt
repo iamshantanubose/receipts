@@ -1,0 +1,5 @@
+CASE 1
+VERDICT: NO-GO
+FINDINGS:
+- [HIGH] Rust py_int saturates huge integers; Python int() raises ValueError for strings over 4300 digits (default int max-str-digits limit), so error code differs (bad_max_tokens vs max_tokens_range) and a long zero-padded valid number is rejected by Python but accepted by Rust. Ticket requires identical output for every input incl. error codes. | evidence: input "hi<TAB>"+"9"*4301+"<TAB>0.5" -> python: ERR bad_max_tokens, rust: ERR max_tokens_range; input "hi<TAB>"+"0"*4301+"1<TAB>0.5" -> python: ERR bad_max_tokens, rust: OK chars=2 max_tokens=1 temperature=0.5 (4300 digits behaves identically)
+- [LOW] Change adds no tests or differential harness; only the 10 conventional cases cover the port (they pass on both), so the divergence above was not caught. Otherwise a 47,610-line differential corpus (unicode digits/whitespace, underscores, nan/inf, rounding ties, CRLF, invalid UTF-8) showed no mismatches besides the huge-digit ones | evidence: git show HEAD --stat (only .gitignore, Cargo.lock, Cargo.toml, main.rs); diff of py vs rust outputs over corpus -> 2 differing lines

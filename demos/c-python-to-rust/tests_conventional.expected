@@ -1,0 +1,10 @@
+OK	chars=5	max_tokens=100	temperature=0.7
+OK	chars=13	max_tokens=10	temperature=1.0
+ERR	empty_prompt
+ERR	bad_max_tokens
+ERR	max_tokens_range
+ERR	max_tokens_range
+ERR	temperature_range
+ERR	bad_temperature
+ERR	bad_shape
+ERR	prompt_too_long

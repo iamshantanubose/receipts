@@ -1,0 +1,623 @@
+नमस्ते	10	0.5
+café au lait	10	0.5
+hi	10.7	0.5
+hi	1e3	0.5
+hi	1_000	0.5
+hi	10	0.25
+hi	10	0.15
+hi	10	 0.5
+hi	10	
+ééééééééééééééééé	10	0.5
+		0.05
+		0.25
+		0.45
+		0.95
+		1.01
+	 50	0
+	 50	0.25
+	 50	0.45
+	 50	0.95
+	 50	1.0
+	+20	0.45
+	+20	1.01
+	+20	nan
+	-5	
+	-5	0
+	-5	1.01
+	-5	nan
+	0	
+	0	0.05
+	0	0.15
+	0	1.0
+	1	 0.5
+	1	0
+	1	0.15
+	1	0.45
+	10.7	
+	10.7	0
+	10.7	0.25
+	10.7	0.45
+	10.7	1
+	10.7	1.0
+	10.7	1.01
+	100	-0.0
+	100	0.45
+	100	0.95
+	1_000	 0.5
+	1_000	0.05
+	1_000	0.35
+	1_000	1
+	1e3	0.05
+	1e3	0.25
+	1e3	0.5
+	4096	0
+	4096	0.25
+	4097	 0.5
+	4097	0
+	4097	0.05
+	4097	0.25
+	4097	0.5
+	4097	1
+	4097	1.01
+	abc	
+	abc	1.0
+   		 0.5
+   		0.15
+   		0.45
+   		0.5
+   		1
+   	 50	
+   	 50	0
+   	 50	0.25
+   	 50	0.45
+   	 50	1
+   	+20	1.01
+   	-5	
+   	-5	 0.5
+   	-5	0.35
+   	-5	0.45
+   	-5	1
+   	-5	1.01
+   	0	
+   	0	0.15
+   	0	0.25
+   	1	0.25
+   	1	0.5
+   	10.7	-0.0
+   	10.7	0.15
+   	10.7	0.35
+   	10.7	0.45
+   	100	
+   	100	0.05
+   	100	0.45
+   	100	1
+   	1_000	0
+   	1_000	0.15
+   	1_000	0.45
+   	1_000	1.01
+   	1e3	0.5
+   	4096	0.05
+   	4096	0.15
+   	4096	0.95
+   	4097	0
+   	4097	0.5
+   	4097	1
+   	abc	-0.0
+   	abc	0.15
+   	abc	0.25
+   	abc	0.35
+   	abc	1.0
+   	abc	nan
+  padded  		
+  padded  		0.15
+  padded  	 50	0.15
+  padded  	 50	1
+  padded  	+20	
+  padded  	+20	-0.0
+  padded  	+20	0.95
+  padded  	+20	1.0
+  padded  	+20	nan
+  padded  	-5	0
+  padded  	-5	0.15
+  padded  	0	0.25
+  padded  	0	0.5
+  padded  	0	1.0
+  padded  	0	nan
+  padded  	1	0.35
+  padded  	1	1
+  padded  	10.7	0
+  padded  	10.7	0.05
+  padded  	10.7	0.45
+  padded  	10.7	0.5
+  padded  	10.7	1
+  padded  	10.7	1.0
+  padded  	10.7	nan
+  padded  	100	-0.0
+  padded  	100	0.05
+  padded  	100	0.5
+  padded  	1_000	-0.0
+  padded  	1_000	1
+  padded  	1e3	 0.5
+  padded  	1e3	0
+  padded  	1e3	0.35
+  padded  	1e3	0.95
+  padded  	1e3	nan
+  padded  	4096	
+  padded  	4096	 0.5
+  padded  	4096	0.05
+  padded  	4096	0.95
+  padded  	4096	1.01
+  padded  	4097	-0.0
+  padded  	4097	0.15
+  padded  	abc	0.15
+  padded  	abc	0.45
+aaaaaaaaaaaaaaaaaaaa		-0.0
+aaaaaaaaaaaaaaaaaaaa		1.0
+aaaaaaaaaaaaaaaaaaaa		nan
+aaaaaaaaaaaaaaaaaaaa	 50	
+aaaaaaaaaaaaaaaaaaaa	 50	-0.0
+aaaaaaaaaaaaaaaaaaaa	 50	0.15
+aaaaaaaaaaaaaaaaaaaa	 50	1
+aaaaaaaaaaaaaaaaaaaa	 50	1.0
+aaaaaaaaaaaaaaaaaaaa	+20	0.45
+aaaaaaaaaaaaaaaaaaaa	+20	0.5
+aaaaaaaaaaaaaaaaaaaa	+20	nan
+aaaaaaaaaaaaaaaaaaaa	-5	
+aaaaaaaaaaaaaaaaaaaa	-5	0
+aaaaaaaaaaaaaaaaaaaa	-5	0.25
+aaaaaaaaaaaaaaaaaaaa	-5	0.5
+aaaaaaaaaaaaaaaaaaaa	-5	1.01
+aaaaaaaaaaaaaaaaaaaa	0	0.95
+aaaaaaaaaaaaaaaaaaaa	0	1.0
+aaaaaaaaaaaaaaaaaaaa	1	1.0
+aaaaaaaaaaaaaaaaaaaa	10.7	
+aaaaaaaaaaaaaaaaaaaa	10.7	0
+aaaaaaaaaaaaaaaaaaaa	10.7	0.95
+aaaaaaaaaaaaaaaaaaaa	10.7	1.01
+aaaaaaaaaaaaaaaaaaaa	100	-0.0
+aaaaaaaaaaaaaaaaaaaa	100	0.5
+aaaaaaaaaaaaaaaaaaaa	100	1.0
+aaaaaaaaaaaaaaaaaaaa	100	1.01
+aaaaaaaaaaaaaaaaaaaa	100	nan
+aaaaaaaaaaaaaaaaaaaa	1_000	 0.5
+aaaaaaaaaaaaaaaaaaaa	1_000	0.25
+aaaaaaaaaaaaaaaaaaaa	1e3	0.15
+aaaaaaaaaaaaaaaaaaaa	1e3	0.25
+aaaaaaaaaaaaaaaaaaaa	4096	
+aaaaaaaaaaaaaaaaaaaa	4096	 0.5
+aaaaaaaaaaaaaaaaaaaa	4096	0
+aaaaaaaaaaaaaaaaaaaa	4096	0.25
+aaaaaaaaaaaaaaaaaaaa	4096	0.45
+aaaaaaaaaaaaaaaaaaaa	4096	0.5
+aaaaaaaaaaaaaaaaaaaa	4096	1.0
+aaaaaaaaaaaaaaaaaaaa	4096	nan
+aaaaaaaaaaaaaaaaaaaa	4097	-0.0
+aaaaaaaaaaaaaaaaaaaa	4097	0.35
+aaaaaaaaaaaaaaaaaaaa	4097	0.45
+aaaaaaaaaaaaaaaaaaaa	abc	
+aaaaaaaaaaaaaaaaaaaa	abc	0.15
+aaaaaaaaaaaaaaaaaaaa	abc	0.35
+aaaaaaaaaaaaaaaaaaaaa		
+aaaaaaaaaaaaaaaaaaaaa		0.95
+aaaaaaaaaaaaaaaaaaaaa		1
+aaaaaaaaaaaaaaaaaaaaa		1.0
+aaaaaaaaaaaaaaaaaaaaa	 50	 0.5
+aaaaaaaaaaaaaaaaaaaaa	 50	0
+aaaaaaaaaaaaaaaaaaaaa	 50	0.35
+aaaaaaaaaaaaaaaaaaaaa	 50	1
+aaaaaaaaaaaaaaaaaaaaa	 50	nan
+aaaaaaaaaaaaaaaaaaaaa	+20	1.0
+aaaaaaaaaaaaaaaaaaaaa	+20	1.01
+aaaaaaaaaaaaaaaaaaaaa	-5	1
+aaaaaaaaaaaaaaaaaaaaa	0	0.25
+aaaaaaaaaaaaaaaaaaaaa	0	0.35
+aaaaaaaaaaaaaaaaaaaaa	0	1.0
+aaaaaaaaaaaaaaaaaaaaa	1	0.05
+aaaaaaaaaaaaaaaaaaaaa	1	0.35
+aaaaaaaaaaaaaaaaaaaaa	1	0.5
+aaaaaaaaaaaaaaaaaaaaa	1	1
+aaaaaaaaaaaaaaaaaaaaa	1	nan
+aaaaaaaaaaaaaaaaaaaaa	10.7	
+aaaaaaaaaaaaaaaaaaaaa	10.7	-0.0
+aaaaaaaaaaaaaaaaaaaaa	10.7	1.0
+aaaaaaaaaaaaaaaaaaaaa	10.7	nan
+aaaaaaaaaaaaaaaaaaaaa	100	0.35
+aaaaaaaaaaaaaaaaaaaaa	1_000	
+aaaaaaaaaaaaaaaaaaaaa	1_000	0
+aaaaaaaaaaaaaaaaaaaaa	1_000	0.05
+aaaaaaaaaaaaaaaaaaaaa	1_000	nan
+aaaaaaaaaaaaaaaaaaaaa	1e3	0
+aaaaaaaaaaaaaaaaaaaaa	1e3	0.15
+aaaaaaaaaaaaaaaaaaaaa	1e3	0.25
+aaaaaaaaaaaaaaaaaaaaa	1e3	0.45
+aaaaaaaaaaaaaaaaaaaaa	1e3	1
+aaaaaaaaaaaaaaaaaaaaa	1e3	nan
+aaaaaaaaaaaaaaaaaaaaa	4096	
+aaaaaaaaaaaaaaaaaaaaa	4096	0.05
+aaaaaaaaaaaaaaaaaaaaa	4096	0.45
+aaaaaaaaaaaaaaaaaaaaa	4096	0.5
+aaaaaaaaaaaaaaaaaaaaa	4096	0.95
+aaaaaaaaaaaaaaaaaaaaa	4097	
+aaaaaaaaaaaaaaaaaaaaa	4097	0.25
+aaaaaaaaaaaaaaaaaaaaa	4097	0.35
+aaaaaaaaaaaaaaaaaaaaa	4097	0.95
+aaaaaaaaaaaaaaaaaaaaa	4097	nan
+aaaaaaaaaaaaaaaaaaaaa	abc	
+aaaaaaaaaaaaaaaaaaaaa	abc	0
+aaaaaaaaaaaaaaaaaaaaa	abc	0.15
+café au lait		 0.5
+café au lait		0
+café au lait		0.35
+café au lait		0.5
+café au lait		1
+café au lait	 50	0.45
+café au lait	 50	0.95
+café au lait	 50	1
+café au lait	+20	0.05
+café au lait	+20	0.45
+café au lait	+20	1.0
+café au lait	-5	0
+café au lait	-5	0.95
+café au lait	0	
+café au lait	0	nan
+café au lait	1	 0.5
+café au lait	1	-0.0
+café au lait	1	0.05
+café au lait	1	0.15
+café au lait	1	0.45
+café au lait	10.7	0
+café au lait	10.7	0.05
+café au lait	10.7	0.25
+café au lait	10.7	0.35
+café au lait	10.7	0.45
+café au lait	100	 0.5
+café au lait	100	-0.0
+café au lait	100	0.25
+café au lait	100	0.45
+café au lait	100	1
+café au lait	1_000	
+café au lait	1_000	nan
+café au lait	1e3	0.05
+café au lait	1e3	0.25
+café au lait	1e3	0.45
+café au lait	1e3	0.5
+café au lait	1e3	0.95
+café au lait	1e3	1
+café au lait	1e3	1.0
+café au lait	1e3	nan
+café au lait	4096	 0.5
+café au lait	4096	0.05
+café au lait	4096	0.25
+café au lait	4096	0.45
+café au lait	4096	0.5
+café au lait	4096	1.01
+café au lait	4097	
+café au lait	4097	0
+café au lait	4097	0.15
+café au lait	4097	0.95
+café au lait	abc	
+café au lait	abc	 0.5
+café au lait	abc	-0.0
+emoji 🚀 launch		0.5
+emoji 🚀 launch		1.01
+emoji 🚀 launch	 50	0.05
+emoji 🚀 launch	 50	0.25
+emoji 🚀 launch	 50	0.35
+emoji 🚀 launch	 50	1.0
+emoji 🚀 launch	+20	 0.5
+emoji 🚀 launch	+20	0
+emoji 🚀 launch	+20	0.25
+emoji 🚀 launch	-5	 0.5
+emoji 🚀 launch	-5	0
+emoji 🚀 launch	-5	0.05
+emoji 🚀 launch	-5	0.95
+emoji 🚀 launch	0	 0.5
+emoji 🚀 launch	0	0.35
+emoji 🚀 launch	0	1.0
+emoji 🚀 launch	1	1
+emoji 🚀 launch	10.7	0.05
+emoji 🚀 launch	10.7	1.01
+emoji 🚀 launch	100	 0.5
+emoji 🚀 launch	100	0.05
+emoji 🚀 launch	100	0.15
+emoji 🚀 launch	100	0.25
+emoji 🚀 launch	100	0.45
+emoji 🚀 launch	100	0.5
+emoji 🚀 launch	100	nan
+emoji 🚀 launch	1_000	-0.0
+emoji 🚀 launch	1_000	0.35
+emoji 🚀 launch	1_000	0.95
+emoji 🚀 launch	1e3	0.45
+emoji 🚀 launch	1e3	0.95
+emoji 🚀 launch	4096	0.95
+emoji 🚀 launch	4096	1.0
+emoji 🚀 launch	4097	0.45
+emoji 🚀 launch	4097	0.95
+emoji 🚀 launch	4097	nan
+emoji 🚀 launch	abc	0.05
+emoji 🚀 launch	abc	0.25
+emoji 🚀 launch	abc	nan
+hello		0
+hello		0.15
+hello		0.25
+hello		0.5
+hello		1
+hello		1.01
+hello		nan
+hello	 50	-0.0
+hello	 50	0.5
+hello	+20	 0.5
+hello	+20	0.35
+hello	+20	0.45
+hello	+20	0.95
+hello	-5	0.35
+hello	-5	0.95
+hello	0	0.25
+hello	0	1
+hello	0	1.0
+hello	0	1.01
+hello	1	
+hello	1	0.5
+hello	1	0.95
+hello	1	nan
+hello	10.7	
+hello	10.7	1.01
+hello	100	
+hello	100	0
+hello	100	1.0
+hello	1_000	
+hello	1_000	-0.0
+hello	1_000	0
+hello	1_000	0.5
+hello	1_000	1.01
+hello	1e3	
+hello	1e3	0.35
+hello	1e3	0.45
+hello	1e3	nan
+hello	4096	
+hello	4096	0.15
+hello	4097	 0.5
+hello	4097	0
+hello	4097	0.15
+hello	4097	0.95
+hello	4097	nan
+hello	abc	
+hello	abc	-0.0
+hello	abc	0.15
+hello	abc	0.35
+hello	abc	0.45
+hello	abc	0.95
+hello	abc	1.01
+summarise this		0.95
+summarise this	 50	0.05
+summarise this	 50	1
+summarise this	 50	nan
+summarise this	+20	0.25
+summarise this	+20	0.45
+summarise this	+20	0.5
+summarise this	+20	1.01
+summarise this	-5	0.45
+summarise this	-5	0.95
+summarise this	-5	1
+summarise this	0	
+summarise this	0	-0.0
+summarise this	0	0
+summarise this	0	0.15
+summarise this	0	0.95
+summarise this	0	1
+summarise this	1	 0.5
+summarise this	1	-0.0
+summarise this	1	nan
+summarise this	10.7	 0.5
+summarise this	10.7	0.05
+summarise this	10.7	0.15
+summarise this	10.7	0.25
+summarise this	10.7	0.45
+summarise this	100	0
+summarise this	100	0.05
+summarise this	100	0.25
+summarise this	100	0.45
+summarise this	100	1.0
+summarise this	1_000	0.15
+summarise this	1_000	0.5
+summarise this	1_000	1.01
+summarise this	1e3	
+summarise this	1e3	0.15
+summarise this	4096	0
+summarise this	4096	0.05
+summarise this	4096	0.35
+summarise this	4096	1.01
+summarise this	4097	 0.5
+summarise this	4097	0
+summarise this	4097	1.0
+summarise this	abc	-0.0
+summarise this	abc	0.35
+summarise this	abc	0.45
+summarise this	abc	0.5
+summarise this	abc	1
+tab nbsp		 0.5
+tab nbsp		0.15
+tab nbsp		0.25
+tab nbsp		0.5
+tab nbsp		1
+tab nbsp		nan
+tab nbsp	 50	 0.5
+tab nbsp	 50	0.25
+tab nbsp	 50	0.35
+tab nbsp	-5	-0.0
+tab nbsp	-5	0.25
+tab nbsp	-5	0.35
+tab nbsp	0	-0.0
+tab nbsp	0	0
+tab nbsp	1	 0.5
+tab nbsp	1	0.15
+tab nbsp	10.7	0
+tab nbsp	10.7	0.45
+tab nbsp	10.7	nan
+tab nbsp	100	0.15
+tab nbsp	100	0.45
+tab nbsp	100	0.95
+tab nbsp	100	nan
+tab nbsp	1_000	0
+tab nbsp	1e3	0
+tab nbsp	1e3	0.95
+tab nbsp	4096	
+tab nbsp	4096	-0.0
+tab nbsp	4096	0.25
+tab nbsp	4096	1.0
+tab nbsp	4096	1.01
+tab nbsp	4097	0.15
+tab nbsp	4097	0.45
+tab nbsp	4097	1
+tab nbsp	abc	0.05
+tab nbsp	abc	0.25
+tab nbsp	abc	0.5
+tab nbsp	abc	0.95
+ééééééééééé		
+ééééééééééé		-0.0
+ééééééééééé		0.5
+ééééééééééé	 50	-0.0
+ééééééééééé	 50	1
+ééééééééééé	+20	-0.0
+ééééééééééé	+20	0.35
+ééééééééééé	+20	0.5
+ééééééééééé	+20	1.0
+ééééééééééé	-5	0.25
+ééééééééééé	-5	0.35
+ééééééééééé	-5	1
+ééééééééééé	-5	1.01
+ééééééééééé	0	 0.5
+ééééééééééé	0	0.35
+ééééééééééé	0	0.45
+ééééééééééé	0	0.95
+ééééééééééé	1	 0.5
+ééééééééééé	1	0.05
+ééééééééééé	1	0.45
+ééééééééééé	10.7	nan
+ééééééééééé	100	0.15
+ééééééééééé	100	1
+ééééééééééé	1_000	0.05
+ééééééééééé	1_000	0.5
+ééééééééééé	1_000	0.95
+ééééééééééé	1e3	
+ééééééééééé	1e3	 0.5
+ééééééééééé	1e3	0.15
+ééééééééééé	1e3	0.95
+ééééééééééé	1e3	1.0
+ééééééééééé	4096	0.25
+ééééééééééé	4096	0.35
+ééééééééééé	4096	0.95
+ééééééééééé	4096	1
+ééééééééééé	4097	-0.0
+ééééééééééé	4097	0
+ééééééééééé	4097	0.05
+ééééééééééé	4097	0.35
+ééééééééééé	4097	0.45
+ééééééééééé	abc	0
+नमस्ते दुनिया		0.35
+नमस्ते दुनिया	 50	0
+नमस्ते दुनिया	 50	0.95
+नमस्ते दुनिया	+20	
+नमस्ते दुनिया	+20	-0.0
+नमस्ते दुनिया	+20	0.45
+नमस्ते दुनिया	-5	0.35
+नमस्ते दुनिया	-5	0.95
+नमस्ते दुनिया	-5	1
+नमस्ते दुनिया	-5	nan
+नमस्ते दुनिया	0	
+नमस्ते दुनिया	0	0.05
+नमस्ते दुनिया	0	0.45
+नमस्ते दुनिया	0	1.01
+नमस्ते दुनिया	1	
+नमस्ते दुनिया	1	0.15
+नमस्ते दुनिया	1	0.45
+नमस्ते दुनिया	1	0.95
+नमस्ते दुनिया	1	1
+नमस्ते दुनिया	10.7	
+नमस्ते दुनिया	10.7	0
+नमस्ते दुनिया	10.7	0.35
+नमस्ते दुनिया	10.7	0.45
+नमस्ते दुनिया	10.7	0.5
+नमस्ते दुनिया	10.7	nan
+नमस्ते दुनिया	100	
+नमस्ते दुनिया	100	0.5
+नमस्ते दुनिया	1_000	0.45
+नमस्ते दुनिया	1_000	0.95
+नमस्ते दुनिया	1_000	nan
+नमस्ते दुनिया	1e3	 0.5
+नमस्ते दुनिया	1e3	0.05
+नमस्ते दुनिया	1e3	0.25
+नमस्ते दुनिया	1e3	1
+नमस्ते दुनिया	4096	
+नमस्ते दुनिया	4096	0.15
+नमस्ते दुनिया	4097	0.25
+नमस्ते दुनिया	4097	0.45
+नमस्ते दुनिया	4097	0.5
+नमस्ते दुनिया	4097	1
+नमस्ते दुनिया	4097	1.0
+नमस्ते दुनिया	abc	
+नमस्ते दुनिया	abc	-0.0
+日本語のテキスト		-0.0
+日本語のテキスト		0
+日本語のテキスト		1
+日本語のテキスト		nan
+日本語のテキスト	 50	 0.5
+日本語のテキスト	 50	0.35
+日本語のテキスト	 50	0.45
+日本語のテキスト	 50	1.0
+日本語のテキスト	+20	0
+日本語のテキスト	+20	0.35
+日本語のテキスト	+20	1
+日本語のテキスト	-5	 0.5
+日本語のテキスト	-5	0.35
+日本語のテキスト	0	
+日本語のテキスト	0	0.25
+日本語のテキスト	1	
+日本語のテキスト	1	 0.5
+日本語のテキスト	1	0.25
+日本語のテキスト	1	0.45
+日本語のテキスト	1	0.5
+日本語のテキスト	10.7	
+日本語のテキスト	10.7	-0.0
+日本語のテキスト	10.7	0.5
+日本語のテキスト	10.7	nan
+日本語のテキスト	100	 0.5
+日本語のテキスト	100	0.15
+日本語のテキスト	100	0.25
+日本語のテキスト	100	0.95
+日本語のテキスト	100	1
+日本語のテキスト	1_000	 0.5
+日本語のテキスト	1_000	0.25
+日本語のテキスト	1_000	0.45
+日本語のテキスト	1_000	0.95
+日本語のテキスト	1e3	
+日本語のテキスト	1e3	-0.0
+日本語のテキスト	1e3	0
+日本語のテキスト	1e3	0.25
+日本語のテキスト	1e3	0.95
+日本語のテキスト	4096	-0.0
+日本語のテキスト	4096	0.35
+日本語のテキスト	4096	1.0
+日本語のテキスト	4096	1.01
+日本語のテキスト	4097	-0.0
+日本語のテキスト	4097	0
+日本語のテキスト	4097	0.25
+日本語のテキスト	4097	1.01
+日本語のテキスト	abc	
+日本語のテキスト	abc	 0.5
+日本語のテキスト	abc	0.25
+日本語のテキスト	abc	0.5
+日本語のテキスト	abc	1.01
+hi	٣	0.5
+hi	５	0.5
+hi	99999999999999999999	0.5
+hi	-99999999999999999999	0.5
+hi	5	0._5
+hi	5	1_.5
+hi	5	0e_1
+hi	5	1e_0
+hi	5	0.5
+hi	5	0.5
+hi	5	٠.٥
+hi	5	1_0e-1
+hi	5	n_an

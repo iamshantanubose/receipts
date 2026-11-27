@@ -1,0 +1,8 @@
+{
+  "name": "verify-engineering",
+  "version": "1.0.0",
+  "description": "Independently verify code changes: requirements, test-integrity audit, differential and mutation checks, GO / CONDITIONAL GO / NO-GO report.",
+  "author": { "name": "Shantanu Bose" },
+  "license": "MIT",
+  "keywords": ["verification", "testing", "code-review", "ai-agents", "mutation-testing", "differential-testing"]
+}

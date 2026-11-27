@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+"""Differential (shadow) test harness: run OLD and NEW on identical inputs, compare, group mismatches.
+
+Standard library only. Safe by default: it only runs the two commands you give it, locally,
+with stdin input. It never contacts external systems.
+
+Modes:
+  lines  : feed the whole input file to each command once; compare output line N to line N.
+  each   : run each command once per input record (one line = one record); compare full stdout.
+  json   : like `each`, but parse stdout as JSON and diff structurally (key paths).
+
+Examples:
+  diff_harness.py --old "python3 legacy.py" --new "./target/release/port" --inputs corpus.tsv
+  diff_harness.py --old "node old.js" --new "node new.js" --inputs reqs.jsonl --mode json
+Exit code: 0 = no mismatches, 1 = mismatches found, 2 = harness error.
+"""
+import argparse
+import json
+import os
+import shlex
+import subprocess
+import sys
+from collections import OrderedDict
+
+
+def split_cmd(cmd):
+    return shlex.split(cmd, posix=(os.name != "nt"))
+
+
+def run(cmd, data, timeout):
+    """Returns (exit code, stdout bytes, stderr text). Outputs are compared as BYTES; text is only for display."""
+    p = subprocess.run(split_cmd(cmd), input=data, capture_output=True, timeout=timeout)
+    return p.returncode, p.stdout, p.stderr.decode("utf-8", "replace")
+
+
+def show(b):
+    return b.decode("utf-8", "backslashreplace")
+
+
+def tokens(s):
+    """Split an output line into a key->value view. key=value pairs keep their key; others use position."""
+    out = OrderedDict()
+    for i, tok in enumerate(s.replace("\t", " ").split()):
+        if "=" in tok:
+            k, v = tok.split("=", 1)
+            out[k] = v
+        else:
+            out[f"#{i}"] = tok
+    return out
+
+
+def line_fingerprint(old, new):
+    a, b = tokens(old), tokens(new)
+    keys = [k for k in OrderedDict.fromkeys(list(a) + list(b)) if a.get(k) != b.get(k)]
+    head_a, head_b = a.get("#0", ""), b.get("#0", "")
+    if head_a != head_b:  # different outcome class (e.g. OK vs ERR)
+        detail = f" ({a.get('#1', '-')} → {b.get('#1', '-')})" if ("#1" in a or "#1" in b) else ""
+        return f"outcome {head_a or '∅'} → {head_b or '∅'}{detail}"
+    named = [k for k in keys if not k.startswith("#")]
+    if named:
+        return "fields differ: " + ", ".join(named)
+    return "values differ: " + ", ".join(f"{a.get(k, '∅')} → {b.get(k, '∅')}" for k in keys)
+
+
+def json_paths(a, b, prefix=""):
+    if type(a) is not type(b):
+        return [f"{prefix or '$'}: type {type(a).__name__} → {type(b).__name__}"]
+    if isinstance(a, dict):
+        paths = []
+        for k in sorted(set(a) | set(b)):
+            p = f"{prefix}.{k}"
+            if k not in a:
+                paths.append(f"{p}: added")
+            elif k not in b:
+                paths.append(f"{p}: removed")
+            else:
+                paths += json_paths(a[k], b[k], p)
+        return paths
+    if isinstance(a, list):
+        if len(a) != len(b):
+            return [f"{prefix or '$'}: length {len(a)} → {len(b)}"]
+        paths = []
+        for i, (x, y) in enumerate(zip(a, b)):
+            paths += json_paths(x, y, f"{prefix}[]")
+        return paths
+    return [] if a == b else [f"{prefix or '$'}: value"]
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--old", required=True, help="command for the reference (trusted) implementation")
+    ap.add_argument("--new", required=True, help="command for the implementation under test")
+    ap.add_argument("--inputs", required=True, help="input file, one record per line")
+    ap.add_argument("--mode", choices=["lines", "each", "json"], default="lines")
+    ap.add_argument("--timeout", type=float, default=30.0, help="seconds per command run")
+    ap.add_argument("--max-examples", type=int, default=3, help="examples kept per mismatch group")
+    ap.add_argument("--report", help="write a JSON report here")
+    args = ap.parse_args()
+
+    with open(args.inputs, "rb") as f:
+        raw = f.read()
+    records = raw.split(b"\n")
+    if records and records[-1] == b"":
+        records.pop()
+
+    if not records:
+        print("HARNESS ERROR: the input file has no records; nothing was compared.", file=sys.stderr)
+        return 2
+
+    groups = OrderedDict()    # per-record mismatches
+    structural = OrderedDict()  # whole-run problems (exit code, line count)
+    compared = 0
+
+    def add(fp, rec, o, n, target=groups):
+        g = target.setdefault(fp, {"count": 0, "examples": []})
+        g["count"] += 1
+        if len(g["examples"]) < args.max_examples:
+            g["examples"].append({"input": rec, "old": o, "new": n})
+
+    try:
+        if args.mode == "lines":
+            rc_o, out_o, err_o = run(args.old, raw, args.timeout)
+            rc_n, out_n, err_n = run(args.new, raw, args.timeout)
+            if rc_o != rc_n:
+                add(f"exit code {rc_o} → {rc_n}", "<whole file>", err_o[-300:], err_n[-300:], structural)
+            lo, ln = out_o.split(b"\n"), out_n.split(b"\n")
+            for lst in (lo, ln):
+                if lst and lst[-1] == b"":
+                    lst.pop()
+            if len(lo) != len(ln) or len(lo) != len(records):
+                add(f"output line count old={len(lo)} new={len(ln)} for {len(records)} input records",
+                    "<whole file>", "", "", structural)
+            for i, rec in enumerate(records):
+                compared += 1
+                o = lo[i] if i < len(lo) else b"<missing>"
+                n = ln[i] if i < len(ln) else b"<missing>"
+                if o != n:
+                    add(line_fingerprint(show(o), show(n)), show(rec), show(o), show(n))
+        else:
+            for rec in records:
+                compared += 1
+                rc_o, o, _ = run(args.old, rec + b"\n", args.timeout)
+                rc_n, n, _ = run(args.new, rec + b"\n", args.timeout)
+                text = show(rec)
+                if rc_o != rc_n:
+                    add(f"exit code {rc_o} → {rc_n}", text, show(o).strip(), show(n).strip())
+                    continue
+                if args.mode == "json":
+                    try:
+                        diffs = json_paths(json.loads(o), json.loads(n))
+                    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                        add(f"unparseable JSON ({type(e).__name__})", text, show(o).strip(), show(n).strip())
+                        continue
+                    if diffs:
+                        add("; ".join(sorted(set(diffs))), text, show(o).strip(), show(n).strip())
+                elif o != n:
+                    add(line_fingerprint(show(o).strip(), show(n).strip()), text, show(o).strip(), show(n).strip())
+    except subprocess.TimeoutExpired as e:
+        print(f"HARNESS ERROR: timeout running {e.cmd}", file=sys.stderr)
+        return 2
+    except (OSError, ValueError) as e:
+        print(f"HARNESS ERROR: could not run a command: {e}", file=sys.stderr)
+        return 2
+
+    mismatched = sum(g["count"] for g in groups.values())
+    print(f"Differential test: {compared} records compared, {mismatched} mismatched records, {len(groups)} distinct groups")
+    print(f"Match rate: {100 * (compared - mismatched) / compared:.1f}%")
+    for fp, g in structural.items():
+        print(f"\n[RUN-LEVEL] {fp}")
+        for ex in g["examples"]:
+            if ex["old"] or ex["new"]:
+                print(f"     old: {ex['old']!r}\n     new: {ex['new']!r}")
+    for fp, g in sorted(groups.items(), key=lambda kv: -kv[1]["count"]):
+        print(f"\n[{g['count']}x] {fp}")
+        for ex in g["examples"]:
+            print(f"   input: {ex['input']!r}\n     old: {ex['old']!r}\n     new: {ex['new']!r}")
+    if args.report:
+        with open(args.report, "w", encoding="utf-8") as f:
+            json.dump({"compared": compared, "mismatches": mismatched, "groups": groups, "run_level": structural},
+                      f, indent=2, ensure_ascii=False)
+    return 1 if (mismatched or structural) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
