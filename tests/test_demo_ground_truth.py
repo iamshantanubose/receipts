@@ -35,8 +35,9 @@ def test_hidden_tests_pass_on_control(demo, flawed, control):
     assert r.returncode == 0, r.stdout
 
 
-@pytest.mark.skipif(shutil.which("cargo") is None, reason="Rust toolchain not installed")
+@pytest.mark.skipif(shutil.which("cargo") is None or shutil.which("bash") is None,
+                    reason="needs the Rust toolchain and bash")
 def test_rust_migration_differential_ground_truth():
     r = subprocess.run(["bash", os.path.join(DEMOS, "c-python-to-rust", "hidden_tests", "check.sh")],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, env=dict(os.environ, PYTHON=sys.executable))
     assert r.returncode == 0, r.stdout + r.stderr

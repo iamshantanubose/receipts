@@ -3,6 +3,15 @@ import sys
 
 MAX_TOKENS_LIMIT = 4096
 MAX_PROMPT_CHARS = 20
+# int() rejects strings with more than 4300 digits on CPython 3.11+ (and 3.9.14+/3.10.7+) by default.
+# The limit is pinned here so the reference behaves the same on every interpreter version.
+INT_MAX_STR_DIGITS = 4300
+
+
+def parse_int(raw):
+    if sum(c.isdecimal() for c in raw) > INT_MAX_STR_DIGITS:
+        raise ValueError("integer string too long")
+    return int(raw)
 
 
 def normalize(line):
@@ -16,7 +25,7 @@ def normalize(line):
     if len(prompt) > MAX_PROMPT_CHARS:
         return "ERR\tprompt_too_long"
     try:
-        max_tokens = int(max_tokens_raw)
+        max_tokens = parse_int(max_tokens_raw)
     except ValueError:
         return "ERR\tbad_max_tokens"
     if max_tokens < 1 or max_tokens > MAX_TOKENS_LIMIT:
