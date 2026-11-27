@@ -86,9 +86,9 @@ For STANDARD on risky files, and always in DEEP, check that the tests can **catc
 ```bash
 python3 "<skill-dir>/scripts/mutation_probe.py" --target <file> --test "<test command>" --max 30
 ```
-It mutates only a temporary copy, never the user's files. Commands run without a shell, so wrap pipelines in a script.
-Exit 2 with "no mutation points" means nothing was tested: report that as NOT VERIFIED, not as a pass. Surviving mutants = blind spots in the tests. The copy
-isolates files, not side effects: **ask first** if the tests touch real databases, services or the network, or if one
+It mutates only a temporary copy, never the user's files. Surviving mutants = blind spots in the tests. Commands run
+without a shell, so wrap pipelines in a script. Exit 2 with "no mutation points" means nothing was tested: report it as
+NOT VERIFIED, never as a pass. The copy isolates files, not side effects: **ask first** if the tests touch real databases, services or the network, or if one
 test run takes more than about 30 seconds (the probe runs the suite once per mutant).
 
 **Never weaken, skip or delete a test to get a pass.** If a test is wrong, report it with the requirement that shows it is wrong.
