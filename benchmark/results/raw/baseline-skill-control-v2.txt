@@ -1,6 +1,0 @@
-CASE 1
-VERDICT: CONDITIONAL GO
-FINDINGS:
-- [MEDIUM] Rust port ignores CPython's int() 4300-digit limit (Python 3.12.11 raises ValueError -> bad_max_tokens; Rust saturates/parses -> max_tokens_range or even OK), so output is not identical for every input as the ticket requires | evidence: input "a\t"+"9"*5000+"\t0.5" -> py "ERR\tbad_max_tokens", rust "ERR\tmax_tokens_range"; "a\t"+"0"*5000+"5"+"\t0.5" -> py "ERR\tbad_max_tokens", rust "OK\tchars=1\tmax_tokens=5\ttemperature=0.5"; "-"+"9"*4301 -> py bad_max_tokens, rust max_tokens_range; 4300 digits matches
-- [LOW] No tests added in the commit (no differential/edge tests committed for the elaborate Unicode/float handling); only the pre-existing conventional file is used | evidence: git show HEAD --stat lists only .gitignore, Cargo.lock, Cargo.toml, main.rs
-Verified: cargo build --release ok; conventional tests pass on both (diff vs .expected empty); 200k random differential fuzz lines: 0 diffs; every Unicode codepoint (13.3M lines, 12 placements) : 0 diffs; CRLF, no trailing newline, empty lines, invalid UTF-8, rounding half cases, -0.0: identical.
