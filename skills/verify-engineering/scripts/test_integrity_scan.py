@@ -15,8 +15,11 @@ Usage:
   test_integrity_scan.py --base main --head HEAD   # committed branch changes only
   test_integrity_scan.py --before old_dir --after new_dir   # two folders, no git repo needed
   add --json for machine-readable output
+The --before/--after mode needs no repository, but it still uses the `git` binary to compute the diff.
 Exit code: 0 = nothing HIGH, 1 = at least one HIGH finding, 2 = error (bad input, git failure).
 """
+from __future__ import annotations
+
 import argparse
 import difflib
 import json
@@ -58,9 +61,11 @@ WEAK = re.compile(
     r"approx\(|assertAlmostEqual|toBeCloseTo|abs\(.*\)\s*[<]|math\.isclose|assertTrue\(|assert\s+True\b|"
     r"toBeTruthy\(|toBeDefined\(|not\.toBeNull\(|toBeGreaterThan(OrEqual)?\(|\bassert\s+\w+\s+in\b|"
     r"assertIn\(|toContain\(|assertIsNotNone\(|\.is_ok\(\)|\bassert!\(\s*true|expect\(true\)|assert\s+len\(|"
-    r"Assert\.(True|NotNull)\(")
+    r"Assert\.(True|NotNull)\(|\bis\s+not\s+None\b|"
+    r"^\s*assert\s+(?!.*(?:==|!=|<|>|\bis\b|\bin\b))\S.*$|"     # bare truthy assert: `assert result`
+    r"^\s*assert\s+[^,]*\s(?:<=?|>=?)\s")                           # ordering instead of equality: `assert x > 0`
 SWALLOW = re.compile(r"except(\s+[\w.]+(\s+as\s+\w+)?)?\s*:\s*(pass|\.\.\.)\s*$|catch\s*\([^)]*\)\s*\{\s*\}|"
-                     r"catch\s*\{\s*\}|\.catch\(\s*\(\)\s*=>\s*\{\s*\}\s*\)|\|\|\s*true\b|_\s*=\s*err\b")
+                     r"catch\s*\{\s*\}|\.catch\(\s*\(\)\s*=>\s*\{\s*\}\s*\)|\|\|\s*true\b|_\s*=\s*err\b|\blet\s+_\s*=")
 EXCEPT_OPEN = re.compile(r"^\s*(except(\s+[\w.]+(\s+as\s+\w+)?)?\s*:|(\}\s*)?catch\s*(\([^)]*\))?\s*\{|rescue\b.*)\s*$")
 SWALLOW_BODY = re.compile(r"^\s*(pass|\.\.\.|\})\s*$")
 MOCK = re.compile(r"mock\.patch|MagicMock|Mock\(|monkeypatch\.setattr|jest\.mock\(|jest\.fn\(|vi\.mock\(|"
@@ -76,25 +81,29 @@ LITERAL = re.compile(r"(['\"]).*?\1|\b\d+(\.\d+)?\b")
 SEV_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2, "INFO": 3}
 
 
-def is_comment(t):
+def is_comment(t: str) -> bool:
+    """True for a whole-line comment (`#`, `//`), but not for a Rust attribute such as `#[test]`."""
     t = t.strip()
     return (t.startswith("#") and not t.startswith("#[")) or t.startswith("//")
 
 
-def lits(t):
+def lits(t: str) -> list[str]:
+    """The string and number literals in a line, in order."""
     return [m.group(0) for m in LITERAL.finditer(t)]
 
 
-def test_name(t):
+def test_name(t: str) -> str | None:
+    """The test name defined on this line, if the line defines a test."""
     m = TEST_DEF.search(t)
     return next((g for g in m.groups() if g), None) if m else None
 
 
 class ScanError(Exception):
-    pass
+    """A user-facing error: bad arguments, not a repository, unknown ref, git failure."""
 
 
-def git(args, cwd=None, ok=(0,)):
+def git(args: list[str], cwd: str | None = None, ok: tuple[int, ...] = (0,)) -> str:
+    """Run git and return stdout. Raises ScanError on an unexpected exit code or on stderr output."""
     try:
         p = subprocess.run(["git", "-c", "core.quotePath=false"] + args, capture_output=True, cwd=cwd)
     except FileNotFoundError:
@@ -105,8 +114,10 @@ def git(args, cwd=None, ok=(0,)):
     return p.stdout.decode("utf-8", "replace")
 
 
-def parse_diff(text):
-    """Parse a unified diff. Returns [{file, old, status, lines: [(kind, old_ln, new_ln, text, hunk)]}]."""
+def parse_diff(text: str) -> list[dict]:
+    """Parse a unified diff. Returns [{file, old, status, lines: [(kind, old_ln, new_ln, text, hunk)]}].
+
+    kind is "-" (removed), "+" (added) or " " (unchanged context)."""
     files, cur = [], None
     old_ln = new_ln = old_left = new_left = 0
     hunk = -1
@@ -124,6 +135,7 @@ def parse_diff(text):
             elif tag == "\\":
                 pass  # "\ No newline at end of file"
             else:
+                cur["lines"].append((" ", old_ln, new_ln, body, hunk))
                 old_ln += 1
                 new_ln += 1
                 old_left -= 1
@@ -159,7 +171,7 @@ def parse_diff(text):
     return files
 
 
-def strip_root(path, root):
+def strip_root(path: str, root: str) -> str:
     """Make a --no-index diff path relative to the folder it came from."""
     path = re.sub(r"^(\./)+", "", path.replace("\\", "/").lstrip("/"))
     for cand in (os.path.normpath(root), os.path.abspath(root), os.path.realpath(root)):
@@ -171,7 +183,8 @@ def strip_root(path, root):
     return path
 
 
-def scan(files):
+def scan(files: list[dict]) -> list[dict]:
+    """Apply every rule to the parsed diff. Returns findings sorted by severity, file and line."""
     findings = []
 
     def add(sev, rule, f, ln, msg, code=""):
@@ -249,10 +262,13 @@ def scan(files):
                 add("MEDIUM", "mock-heavy", f, 0, f"{mocks} new mocks/patches. Check the test still exercises real behaviour.")
 
         added_by_ln = {ln: t for ln, t, _ in added}
+        context_by_ln = {n: t for k, o, n, t, h in fd["lines"] if k == " "}
         for ln, t, _ in added:
             if is_comment(t):
                 continue
-            multi = EXCEPT_OPEN.match(t) and SWALLOW_BODY.match(added_by_ln.get(ln + 1, "x"))
+            # an added handler with an empty body, or an empty body added under an unchanged handler line
+            multi = (EXCEPT_OPEN.match(t) and SWALLOW_BODY.match(added_by_ln.get(ln + 1, "x"))) or \
+                (SWALLOW_BODY.match(t) and EXCEPT_OPEN.match(context_by_ln.get(ln - 1, "x")))
             if SWALLOW.search(t) or multi:
                 add("HIGH" if is_test else "MEDIUM", "swallowed-error", f, ln,
                     "Error swallowed or failure ignored." + (" In a test, this hides failures." if is_test else ""), t)
@@ -281,7 +297,7 @@ def scan(files):
     return findings
 
 
-def git_diff_worktree(repo, base):
+def git_diff_worktree(repo: str, base: str) -> str:
     """Diff of `base` vs working tree, plus untracked (not ignored) files as additions."""
     text = git(["diff", "--unified=3", "--no-color", "-M", base, "--"], cwd=repo)
     untracked = git(["ls-files", "--others", "--exclude-standard", "-z"], cwd=repo).split("\0")
@@ -290,13 +306,17 @@ def git_diff_worktree(repo, base):
     return text
 
 
-def verify_ref(repo, ref):
+def verify_ref(repo: str, ref: str) -> str:
+    """Resolve a ref to a commit SHA, or raise ScanError naming the ref."""
     if ref.startswith("-"):
         raise ScanError(f"invalid ref {ref!r}")
-    return git(["rev-parse", "--verify", "--quiet", "--end-of-options", ref + "^{commit}"], cwd=repo).strip()
+    try:
+        return git(["rev-parse", "--verify", "--quiet", "--end-of-options", ref + "^{commit}"], cwd=repo).strip()
+    except ScanError:
+        raise ScanError(f"unknown git ref {ref!r} (not a branch, tag or commit in {repo})") from None
 
 
-def main():
+def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--base", help="branch/ref the change is based on (diffed from merge-base with HEAD). Default: HEAD")
     ap.add_argument("--head", help="ref for the new side (default: working tree incl. untracked files)")

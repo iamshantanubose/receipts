@@ -93,7 +93,7 @@ def test_git_mode(tmp_path):
     assert r.returncode == 1 and "skipped-test" in r.stdout
 
 
-# ---- regression tests from the independent pre-release audit ----
+# ---- safety and error-path regressions ----
 
 def git_repo(tmp_path):
     g = lambda *a: subprocess.run(["git", *a], cwd=tmp_path, check=True, capture_output=True)
@@ -212,3 +212,54 @@ def test_rename_is_medium_not_high(tmp_path):
     write(tmp_path / "b", "tests/test_m.py", "def test_new_name():\n    assert f(2) == 4\n")
     code, rules, _ = scan(tmp_path / "a", tmp_path / "b")
     assert code == 0 and "test-removed-or-renamed" in rules
+
+
+WEAKEN_BASE = """def test_total():
+    assert total(3) == 30
+
+def test_parse():
+    assert parse("x") == {"k": 1}
+
+def test_price():
+    assert price(2) == 20
+"""
+
+
+def test_truthy_is_not_none_and_ordering_weakenings(tmp_path):
+    write(tmp_path / "a", "tests/test_w.py", WEAKEN_BASE)
+    write(tmp_path / "b", "tests/test_w.py", WEAKEN_BASE.replace("total(3) == 30", "total(3)")
+          .replace('parse("x") == {"k": 1}', 'parse("x") is not None').replace("price(2) == 20", "price(2) > 0"))
+    code, _, findings = scan(tmp_path / "a", tmp_path / "b")
+    weakened = sorted(f["line"] for f in findings if f["rule"] == "weakened-assertion")
+    assert code == 1 and weakened == [2, 5, 8], findings
+
+
+def test_exact_assertion_with_message_is_not_weak(tmp_path):
+    write(tmp_path / "a", "tests/test_w.py", "def test_a():\n    assert f(1, 2) == 3\n")
+    write(tmp_path / "b", "tests/test_w.py", "def test_a():\n    assert f(1, 2) == 4, 'spec changed in PAY-12'\n")
+    _, rules, _ = scan(tmp_path / "a", tmp_path / "b")
+    assert "weakened-assertion" not in rules
+
+
+def test_pass_added_under_unchanged_except_line(tmp_path):
+    before = "def test_d():\n    try:\n        run()\n    except ValueError:\n        raise\n"
+    write(tmp_path / "a", "tests/test_d.py", before)
+    write(tmp_path / "b", "tests/test_d.py", before.replace("        raise\n", "        pass\n"))
+    code, rules, _ = scan(tmp_path / "a", tmp_path / "b")
+    assert code == 1 and "swallowed-error" in rules
+
+
+def test_rust_let_underscore_discards_result(tmp_path):
+    write(tmp_path / "a", "tests/t.rs", "#[test]\nfn test_x() {\n    let r = f();\n    assert_eq!(r.unwrap(), 3);\n}\n")
+    write(tmp_path / "b", "tests/t.rs", "#[test]\nfn test_x() {\n    let _ = f();\n}\n")
+    code, rules, _ = scan(tmp_path / "a", tmp_path / "b")
+    assert code == 1 and "swallowed-error" in rules
+
+
+def test_unknown_ref_names_the_ref(tmp_path):
+    g = git_repo(tmp_path)
+    write(tmp_path, "app.py", "x = 1\n")
+    g("add", ".")
+    g("commit", "-qm", "base")
+    r = run_script("test_integrity_scan.py", "--repo", str(tmp_path), "--base", "no-such-branch")
+    assert r.returncode == 2 and "unknown git ref 'no-such-branch'" in r.stderr
