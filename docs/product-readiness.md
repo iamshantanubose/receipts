@@ -10,7 +10,7 @@
 
 ## Conditions (open)
 - [ ] Verify `/verify-engineering` live in an authenticated Claude Code session, and in Cursor (both blocked by logins on the build machine).
-- [ ] Verify `npx skills add iamshantanubose/verify-engineering` once the repo is public.
+- [ ] Verify `npx skills add iamshantanubose/receipts` once the repo is public.
 - [ ] Codex: untested.
 - [ ] Re-run the benchmark on the released SKILL.md and scripts, with harder cases (multi-file, vague requirements, weaker models, repeated trials, a blinded scorer). The current benchmark ran on the pre-audit version and showed **no detection advantage** on easy cases.
 - [ ] CI on Python 3.9 has not run yet (the first push will run it).

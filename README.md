@@ -33,24 +33,24 @@ VERIFY is built to catch exactly these.
 ## Install (about 2 minutes)
 **Claude Code**
 ```bash
-npx skills add iamshantanubose/verify-engineering -a claude-code -g
+npx skills add iamshantanubose/receipts -a claude-code -g
 ```
-or as a plugin, inside Claude Code: `/plugin marketplace add iamshantanubose/verify-engineering`, then `/plugin install verify-engineering@verify-engineering`.
+or as a plugin, inside Claude Code: `/plugin marketplace add iamshantanubose/receipts`, then `/plugin install verify-engineering@verify-engineering`.
 
 **Cursor**
 ```bash
-npx skills add iamshantanubose/verify-engineering -a cursor -g
+npx skills add iamshantanubose/receipts -a cursor -g
 ```
 **Manual (any host)**
 ```bash
-git clone https://github.com/iamshantanubose/verify-engineering.git
-cp -R verify-engineering/skills/verify-engineering ~/.claude/skills/    # Claude Code (Cursor's docs say it reads this folder too)
+git clone https://github.com/iamshantanubose/receipts.git
+cp -R receipts/skills/verify-engineering ~/.claude/skills/    # Claude Code (Cursor's docs say it reads this folder too)
 ```
 Details and troubleshooting: [Claude Code](docs/install-claude-code.md) · [Cursor](docs/install-cursor.md) · [Codex](docs/install-codex.md) · [Troubleshooting](docs/troubleshooting.md)
 
 ## Quick start: see it catch something
 ```bash
-git clone https://github.com/iamshantanubose/verify-engineering.git && cd verify-engineering/demos/b-weakened-tests/after
+git clone https://github.com/iamshantanubose/receipts.git && cd receipts/demos/b-weakened-tests/after
 python3 -m pytest -q                 # 3 passed, 1 skipped: "done"
 python3 ../../../skills/verify-engineering/scripts/test_integrity_scan.py --before ../before --after .
 # 6 findings: coverage gate 90 → 60, skip "flaky on CI", 2 weakened assertions, a deleted test…

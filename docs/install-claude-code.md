@@ -4,23 +4,23 @@ Takes about 2 minutes. You need Claude Code, git and Python 3.9+.
 
 ## Option 1: one command (recommended)
 ```bash
-npx skills add iamshantanubose/verify-engineering -a claude-code -g
+npx skills add iamshantanubose/receipts -a claude-code -g
 ```
 `-g` installs it for all your projects (`~/.claude/skills/`). Leave out `-g` to install it only in the current project (`.claude/skills/`).
 
 ## Option 2: as a Claude Code plugin
 Inside Claude Code:
 ```
-/plugin marketplace add iamshantanubose/verify-engineering
+/plugin marketplace add iamshantanubose/receipts
 /plugin install verify-engineering@verify-engineering
 ```
 Plugin skills are namespaced, so you invoke it as `/verify-engineering:verify-engineering`. Plain language also works.
 
 ## Option 3: manual copy
 ```bash
-git clone https://github.com/iamshantanubose/verify-engineering.git
+git clone https://github.com/iamshantanubose/receipts.git
 mkdir -p ~/.claude/skills
-cp -R verify-engineering/skills/verify-engineering ~/.claude/skills/
+cp -R receipts/skills/verify-engineering ~/.claude/skills/
 ```
 
 ## Use it

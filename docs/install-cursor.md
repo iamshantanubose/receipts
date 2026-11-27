@@ -6,14 +6,14 @@ installed the skill for Claude Code, Cursor sees it too.
 
 ## Option 1: one command
 ```bash
-npx skills add iamshantanubose/verify-engineering -a cursor -g
+npx skills add iamshantanubose/receipts -a cursor -g
 ```
 
 ## Option 2: manual copy
 ```bash
-git clone https://github.com/iamshantanubose/verify-engineering.git
+git clone https://github.com/iamshantanubose/receipts.git
 mkdir -p ~/.cursor/skills
-cp -R verify-engineering/skills/verify-engineering ~/.cursor/skills/
+cp -R receipts/skills/verify-engineering ~/.cursor/skills/
 ```
 For one project only, copy it into `<project>/.cursor/skills/` instead.
 
